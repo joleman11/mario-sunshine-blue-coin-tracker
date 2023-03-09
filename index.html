@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<link rel="icon" type="image/x-icon" href="img/favicon.ico">
+</head>
+
+<body>
+	<h1>Super Mario Sunshine Blue Coin Tracker v1.0</h1>
+	<p>Website made by Joleman11, Information and screenshots were obtained from <a href="https://www.mariowiki.com/">mariowiki.com</a> and <a href="https://mariopartylegacy.com/">mariopartylegacy.com</a></p>
+	<br>
+	
+	<button type="button" onclick="save();">Save to File</button>
+	<button type="button" onclick="load();">Load from File</button>
+	<button type="button" onclick="reset();">Reset</button>
+	<br>
+	
+	<br>
+	<button type="button" onclick="img_show_all();">Show all Images</button>
+	<button type="button" onclick="img_hide_all();">Hide all Images</button>
+	<br>
+	
+	<div id="div1">
+	
+	</div>
+	
+</body>
+
+
+<script>
+	document.title = "SMS Blue Coin Tracker";
+	const blueCoinNotes = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "All", "All", "All", "All", "All", "All", "All", "All", "All", "All", "All", "All", "All", "3-8", "3-8", "6-8", "4-8", "4-8", "3-8", "5-8", "5-8", "6-8", "3-8", "7-8", "7-8", "7-8", "6-8", "3-8", "8", "8", "1", "1", "All", "1", "All", "2", "All", "All", "3-8", "3-8", "All", "All", "8", "All", "All", "All", "3-8", "All", "All", "All", "All", "All", "All", "4-8", "All", "3-8", "All", "All", "6-8", "All", "All but 3", "All but 3", "All but 3", "2,4-8", "1-2,4", "All", "All", "All", "All", "All", "All but 5", "All but 5", "All but 5", "All but 5", "All", "All", "All", "4", "4", "4", "4", "6", "All", "All", "All", "All", "All", "All", "6", "5-8", "All", "All", "All", "All", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "1,3,5-8", "2", "2", "2", "2", "2", "2", "6", "2-8", "2-8", "2-8", "7-8", "2-8", "All", "1,6", "1,6", "6", "6", "2-8", "5", "4 and 5", "4 and 5", "7-8", "7-8", "7-8", "7-8", "7-8", "4-5,7-8", "3-5,7-8", "3-5,7-8", "3-5,7-8", "3-5,7-8", "3-5,7-8", "7-8", "4-5,7-8", "3-5,7-8", "3-5,7-8", "2-5,7-8", "All", "All", "All", "All", "All", "All", "All", "All", "All", "All", "All", "All", "All", "All", "2-8", "2-8", "2-8", "2-8", "All", "All", "All", "All", "All", "All", "6", "6", "4,8", "4,8", "4,8", "4,8", "All", "All", "All", "All", "All", "All", "All", "All", "All", "All", "All", "All", "N 1,3,5,7", "N 1,3,5,7", "D 2,4,6,8", "3", "3", "3", "5", "5", "5", "6", "6", "6", "6", "6", "6", "6", "6", "8", "", "", "", "", "", "", "", "", "", ""];
+	const areaName = ["Delfino Plaza","Bianco Hills","Ricco Harbor","Gelato Beach","Pinna Park","Sirena Beach","Noki Bay","Pianta Village","Corona Mountain"];
+	const areaShines = [20,30,30,30,30,30,30,30,10];
+	var blueCoinSave = JSON.parse(localStorage.getItem("blueCoinSave"));
+	var blueCoinEsti = JSON.parse(localStorage.getItem("blueCoinEsti"));
+	
+	//Load Save
+	if(blueCoinSave == null){
+		blueCoinSave = [];
+		blueCoinEsti = [0,0,0,0,0,0,0,0,0];
+	}
+	
+	function save() {
+		var link = document.createElement("a");		
+		var tmpSave = ["BoccherV1", blueCoinSave, blueCoinEsti];		
+		var content = JSON.stringify(tmpSave);
+		
+		var file = new Blob([content], { type: 'text/plain' });
+		link.href = URL.createObjectURL(file);
+		link.download = "bluecoin_tracker.sav";
+		link.click();
+		URL.revokeObjectURL(link.href);
+	}
+	
+	function load() {
+		var input = document.createElement('input');
+		input.type = 'file';
+		input.onchange = e => {
+		   var file = e.target.files[0]; 
+		   var reader = new FileReader();
+		   reader.readAsText(file,'UTF-8');
+		   reader.onload = readerEvent => {
+		   
+		   var passedTest = true;
+		   try {
+				var content = JSON.parse(readerEvent.target.result);
+		   } catch(e) {
+				alert(e + " (Failed to load save!)");
+				passedTest = false;
+		   }
+			//var content = JSON.parse(readerEvent.target.result);
+			if (passedTest) {
+				if (content[0] == "BoccherV1") {
+					blueCoinSave = content[1];
+					blueCoinEsti = content[2];
+					localStorage.setItem("blueCoinSave", JSON.stringify(blueCoinSave));
+					localStorage.setItem("blueCoinEsti", JSON.stringify(blueCoinEsti));
+				
+					var coinMax = 0;
+					var coinCurr = 0;
+					for (let a = 0; a < areaShines.length; a++) {
+					
+						document.getElementById(a+"T").innerHTML = areaName[a] + " (" + ~~((blueCoinEsti[a] / areaShines[a]) * 100) + "%)";
+						document.getElementById(a+"P").value = blueCoinEsti[a];
+						
+						for (let b = 0; b < areaShines[a]; b++) {
+							if (blueCoinSave[coinCurr]) {
+								document.getElementById(a+"_"+b).checked = true;
+							} else {
+								document.getElementById(a+"_"+b).checked = false;
+							}
+							coinCurr++;
+						}
+					}
+				  } else {
+					alert("Save file contains invalid signature!");
+				  }
+				}
+		   }
+		}
+		input.click();
+	}
+	
+	function img_show_all() {
+		var images = document.getElementsByTagName('img');
+		for (i = 0; i < images.length;i++ ) {
+			images[i].style.display = "";
+		}
+		
+		images = document.getElementsByTagName('div');
+		for (i = 0; i < images.length;i++ ) {
+			if (images[i].id) {
+				images[i].style = "display:inline-block;";
+			}	
+		}
+	}
+	
+	function img_hide_all() {
+		var images = document.getElementsByTagName('img');
+		for (i = 0; i < images.length;i++ ) {
+			images[i].style.display = "none";
+		}
+		
+		images = document.getElementsByTagName('div');
+		for (i = 0; i < images.length;i++ ) {
+			if (images[i].id) {
+				images[i].style = "";
+			}	
+		}
+	}
+	
+	function img_toggle(button) {
+		var str = button.id;
+		str = str.substring(0, str.indexOf('B'));
+		
+		var images = document.getElementsByTagName('img');
+		for (i = 0; i < images.length;i++ ) {
+			if (images[i].id == str + "IMG") {
+				if (images[i].style.display == "none") {
+					images[i].style.display = ""
+				} else {
+					images[i].style.display = "none"
+				}
+			}	
+		}
+		
+		images = document.getElementsByTagName('div');
+		for (i = 0; i < images.length;i++ ) {
+			if (images[i].id == str + "LB") {
+				if (images[i].style.display == "inline-block") {
+					images[i].style = "";
+				} else {
+					images[i].style = "display:inline-block;";
+				}
+			}	
+		}
+	}
+	
+	function reset() {
+		if (confirm("Are you sure you want to reset?")) {
+			blueCoinSave = [];
+			blueCoinEsti = [0,0,0,0,0,0,0,0,0];
+			localStorage.setItem("blueCoinSave", JSON.stringify(blueCoinSave));
+			localStorage.setItem("blueCoinEsti", JSON.stringify(blueCoinEsti));
+			
+			var coinMax = 0;
+			var coinCurr = 0;
+			for (let a = 0; a < areaShines.length; a++) {
+			
+				document.getElementById(a+"T").innerHTML = areaName[a] + " (0%)";
+				document.getElementById(a+"P").value = 0;
+				
+				for (let b = 0; b < areaShines[a]; b++) {
+					document.getElementById(a+"_"+b).checked = false;
+				}
+			}
+		}
+	}
+	
+	function init() {
+		var coinMax = 0;
+		var coinCurr = 0;
+		var para = null;
+		var node = null;
+		var divpara = null;
+		var element = document.getElementById("div1");
+		for (let a = 0; a < areaShines.length; a++) {
+			//Set max shines per area
+			coinMax = areaShines[a];
+			
+			//Title
+			para = document.createElement("h2");
+			para.textContent = areaName[a] + " (" + ~~((blueCoinEsti[a] / areaShines[a]) * 100) + "%)";
+			para.setAttribute("id", a+"T");
+			element.appendChild(para);
+			
+			//Progress Bar
+			para = document.createElement("PROGRESS");
+			para.setAttribute("id", a+"P");
+			para.setAttribute("max", coinMax);
+			para.setAttribute("value", blueCoinEsti[a]);
+			element.appendChild(para);
+			
+			//Gap from Progress bar
+			para = document.createElement("LABEL");
+			para.textContent = "       ";
+			element.appendChild(para);
+			
+			//Image Button
+			para = document.createElement("BUTTON");
+			para.setAttribute("id", a+"B");
+			para.textContent = "Toggle Images";
+			para.setAttribute("onclick", "img_toggle(this);");
+			element.appendChild(para);
+			
+			//Line break				
+			para = document.createElement("br");
+			element.appendChild(para);
+			
+			//Create each entry
+			for (let b = 0; b < coinMax; b++) {
+			
+				//Div Start
+				divpara = document.createElement("div");
+				divpara.setAttribute("id", a+"LB");
+				//divpara.setAttribute("style", "display:inline-block;");
+			
+				//Image
+				para = document.createElement("img");
+				para.setAttribute("src", "img/" + a + "/" + b + ".png");
+				para.setAttribute("style", "vertical-align:middle;display:none;width:150px;height=113px;");
+				para.setAttribute("id", a+"IMG");
+				divpara.appendChild(para);
+				
+				//Line Break Thingy
+				para = document.createElement("h4");
+				para.setAttribute("style", "line-height:0;font-size:0;");
+				divpara.appendChild(para);
+			
+				//Checkmark
+				para = document.createElement("INPUT");
+				para.setAttribute("type", "checkbox");
+				para.setAttribute("onclick", "updateCoin(this);");
+				if (blueCoinSave[coinCurr]) {
+					para.setAttribute("checked", "true");
+				}	
+				para.setAttribute("id", a+"_"+b);
+				divpara.appendChild(para);
+				
+				//Blue Coin name label
+				para = document.createElement("LABEL");
+				para.textContent = (b+1) + ")";
+				if (blueCoinNotes[coinCurr]) {
+					para.textContent = para.textContent + " " + blueCoinNotes[coinCurr];
+				}
+				para.setAttribute("style", "display:inline-block;width:120px;"); //123
+				divpara.appendChild(para);
+				
+				//Div End
+				element.appendChild(divpara);
+				
+				coinCurr++;
+			}
+		}
+	}	
+	
+	function updateCoin(button) {
+		var str = button.id;
+		str = str.split('_');
+		
+		var tmp = +str[0];
+		
+		var coin = +str[1];
+		
+		var level = 0;
+		
+		if (tmp > 0) {
+			level = level + areaShines[0];
+			for (let a = 2; a <= tmp; a++) {
+				level = level + areaShines[tmp - 1];
+			}
+		}
+		blueCoinSave[level + coin] = button.checked;
+		if (button.checked) {
+			blueCoinEsti[tmp]++;
+		} else {
+			blueCoinEsti[tmp]--;
+		}
+		document.getElementById(tmp+"P").value = blueCoinEsti[tmp];
+		document.getElementById(tmp+"T").innerHTML = areaName[tmp] + " (" + ~~((blueCoinEsti[tmp] / areaShines[tmp]) * 100) + "%)";
+		
+		localStorage.setItem("blueCoinSave", JSON.stringify(blueCoinSave));
+		localStorage.setItem("blueCoinEsti", JSON.stringify(blueCoinEsti));
+	}
+	
+	init();
+</script>
